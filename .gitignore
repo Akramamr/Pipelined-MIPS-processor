@@ -1,0 +1,42 @@
+# ==========================================
+# QuestaSim / ModelSim Generated Files
+# ==========================================
+
+*.pdf
+*.rar
+*.mpf
+*.mpf
+*Delievrables/
+# Exceptoins files
+
+# 1. Compilation Libraries
+work/
+msim/
+_*
+[_@]*
+
+# 2. Compilation Artifacts
+*.mti
+*.dat
+*.dbs
+*.psm
+*.bak
+*.cmp
+
+# 3. Simulation & Waveform Outputs
+*.wlf
+wlf*
+*.vstf
+*.vcd
+*.fsdb
+
+# 4. Coverage & Debug Databases
+cov*/
+*.ucdb
+sc_dpiheader.h
+vsim.dbg
+
+# 5. Runtime Logs & Metadata
+transcript*
+modelsim.ini
+*.log
