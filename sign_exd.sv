@@ -16,9 +16,10 @@ module sign_ext #(
 );
 
 //=============== OPCODE_SIG ===============//
-    reg [6:0] opcode = instruction[6:0];
+    reg [6:0] opcode;
 
     always @(*) begin
+        opcode = instruction[6:0];
         case (opcode)
             // I-type
             7'b0000_011: ext_out = {{OUT_WIDTH-12{instruction[INS_WIDTH-1]}},
