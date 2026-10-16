@@ -5,8 +5,8 @@
 */
 module sign_ext #(
 //=============== PARAMETERS ===============//
-    parameter INS_WIDTH,
-    parameter OUT_WIDTH
+    parameter INS_WIDTH = 32,
+    parameter OUT_WIDTH = 64
 ) (
 //=============== INPUTS ===============//
     input  wire [INS_WIDTH-1:0] instruction,
