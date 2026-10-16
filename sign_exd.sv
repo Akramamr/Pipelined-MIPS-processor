@@ -23,7 +23,7 @@ module sign_ext #(
         case (opcode)
             // I-type
             7'b0000_011: ext_out = {{OUT_WIDTH-12{instruction[INS_WIDTH-1]}},
-                                    instruction[INS_WIDTH-1:INS_WIDTH-13]}; 
+                                    instruction[INS_WIDTH-1:INS_WIDTH-12]}; 
 
             // S-type
             7'b0100_011: ext_out = {{OUT_WIDTH-12{instruction[INS_WIDTH-1]}},
