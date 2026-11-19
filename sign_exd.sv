@@ -17,7 +17,7 @@ module sign_ext #(
 
 //=============== OPCODE_SIG ===============//
 
-    assign ext_out = {{OUT_WIDTH-12{instruction[INS_WIDTH-1]}},
-                     instruction[INS_WIDTH-1:INS_WIDTH-12]};
+    assign ext_out = {{(OUT_WIDTH-INS_WIDTH){instruction[INS_WIDTH-1]}}, instruction};
+
     
 endmodule
