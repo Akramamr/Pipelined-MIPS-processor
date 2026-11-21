@@ -7,7 +7,7 @@ module moduleName #(
 //=============== PARAMETERS ===============//
     parameter op_w       = 6, //opcode width
     parameter func_w     = 6 , // funct port width
-    parameter aluctl_w   = 3, // alucontrol output width
+    parameter aluctl_w   = 4, // alucontrol output width
     parameter mem_depth  = 64,
     parameter MUX_WIDTH  = 8,
     parameter ADDR_WIDTH = 5,
@@ -49,7 +49,7 @@ module moduleName #(
     wire [DATA_WIDTH-1:0] write_data;
     wire [4:0]            writereg;
     wire [DATA_WIDTH-1:0] signimm;
-    wire [31:0]           shift_2;
+    wire [31:0]           signimm_shift2;
     wire [31:0]           pc_branch;
     wire                  zero;
     wire [31:0]           alu_result;
@@ -136,10 +136,56 @@ module moduleName #(
 
 
     // Execute modules
+    // write reg mux
+    mux2 #(
+        .WIDTH(5)
+    ) u_reg_dst_mux (
+        .d0 (instr[20:16]),
+        .d1 (instr[15:11]),
+        .s  (alusrc),
+        .y  (writereg)
+    );
 
-    // Memory modules
+    // scrB mux
+    mux2 #(
+        .WIDTH(DATA_WIDTH)
+        ) u_alu_src_mux (
+        .d0 (write_data),
+        .d1 (signimm),
+        .s  (alusrc),
+        .y  (SrcB)
+    );
 
-    // Writeback modules
+    // alu
+    alu alu (
+        .a         (SrcA),
+        .b         (SrcB),
+        .shamt     (instr[10:6]),
+        .alucontrol(alucontrol),
+        .result    (result),
+        .zero      (zero),
+        .sign      (sign),
+        .overflow  (overflow)
+    );
+
+    // shift by 2
+    shifter shiftby2 (
+        .a         (signimm),
+        .shift_amt (5'd2),
+        .shift_type(1'b0),
+        .y         (pc_branch)
+    );
+
+    // adder pcbranch
+       adder u_pc_branch_adder (
+        .a (signimm_shift2),
+        .b (pc_plus4),
+        .y (pc_branch)
+    );
+
+    // Memory modules //
+
+    // Writeback modules //
 
 
 endmodule
