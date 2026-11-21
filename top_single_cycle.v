@@ -56,9 +56,10 @@ module moduleName #(
     wire                  sign;
     wire                  overflow;
     wire [DATA_WIDTH-1:0] read_data;
+    wire [DATA_WIDTH-1:0] result;
 
 //=============== MODULES ===============//
-    // Fetch modules
+    // Fetch modules //
     mux2 #(
         .WIDTH(DATA_WIDTH)
      ) pc_mux2 (
@@ -88,7 +89,51 @@ module moduleName #(
         .rd(instr)
     );
 
-    // Decode modules
+    // Control Unit //
+    control_unit #(
+        .op_w    (op_w     /* default 6 */),
+        .func_w  (func_w   /* default 6 */),
+        .aluctl_w(aluctl_w /* default 3 */)
+     ) control_unit (
+        .opcode    (instr[31:26]),
+        .funct     (instr[5:0]),
+        .zero      (zero),
+        .regdst    (regdst),
+        .alusrc    (alusrc),
+        .memtoreg  (memtoreg),
+        .regwrite  (regwrite),
+        .memwrite  (memwrite),
+        .branch    (branch),
+        .pcsrc     (pcsrc),
+        .jump      (jump),
+        .alucontrol(alucontrol)
+    );
+
+    // Decode modules //
+    reg_file #(
+        .ADDR_WIDTH (ADDR_WIDTH),
+        .REG_COUNT  (REG_COUNT),
+        .DATA_WIDTH (DATA_WIDTH)
+    ) u_reg_file (
+        .clk        (clk),
+        .rst        (rst),
+        .rd_reg1    (instr[25:21]),
+        .rd_reg2    (instr[20:16]),
+        .wr_reg     (writereg),
+        .en_reg_wr  (regwrite),
+        .wr_data    (result),
+        .rd_data1   (SrcA),
+        .rd_data2   (write_data)
+    );
+
+    sign_ext #(
+        .INS_WIDTH (INS_WIDTH),
+        .OUT_WIDTH (DATA_WIDTH)
+    ) u_sign_ext (
+        .instruction (instr[15:0]),
+        .ext_out     (signimm)
+    );
+
 
     // Execute modules
 
