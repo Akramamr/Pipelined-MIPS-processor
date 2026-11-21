@@ -9,7 +9,6 @@ module top_single_cycle #(
     parameter func_w     = 6 , // funct port width
     parameter aluctl_w   = 4, // alucontrol output width
     parameter mem_depth  = 64,
-    parameter MUX_WIDTH  = 8,
     parameter ADDR_WIDTH = 5,
     parameter REG_COUNT  = 32,
     parameter DATA_WIDTH = 32,
@@ -28,6 +27,9 @@ module top_single_cycle #(
 //=============== SIGNALS ===============//
     // initatial //
     wire [DATA_WIDTH-1:0] pc_in;
+    wire [DATA_WIDTH-1:0] pc_jump_in;
+    wire [DATA_WIDTH-1:0] pc_jump_out;
+    wire [27:0]           pc_jump_shifted;
     wire [DATA_WIDTH-1:0] pcf;
     wire [DATA_WIDTH-1:0] instr;
     wire [DATA_WIDTH-1:0] pc_plus4;
@@ -69,24 +71,41 @@ module top_single_cycle #(
         .y (pc_in)
     );
 
+    assign pc_jump_in = {pc_plus4[31:28], pc_jump_shifted};
+    mux2 #(
+        .WIDTH(DATA_WIDTH)
+     ) pc_jump_mux2 (
+        .d0(pc_in),
+        .d1(pc_jump_in),
+        .s (jump),
+        .y (pc_jump_out)
+    );
+
     d_ff #(
         .DATA_WIDTH(DATA_WIDTH)
      ) pc_ff (
         .clk(clk),
         .rst(rst),
-        .d  (pc_in),
+        .d  (pc_jump_out),
         .q  (pcf)
     );
 
     adder pc4_adder (
         .a(pcf),
-        .b({DATA_WIDTH{1'd4}}),
+        .b({{(DATA_WIDTH-3){1'b0}}, 3'd4}),
         .y(pc_plus4)
     );
 
-    imem imem (
+    imem instr_mem (
         .a (pcf[7:2]),
         .rd(instr)
+    );
+
+    shifter jumb_shifter (
+        .a         (instr[25:0]),
+        .shift_amt (5'd2),
+        .shift_type(1'b0),
+        .y         (pc_jump_shifted)
     );
 
     // Control Unit //
@@ -94,7 +113,7 @@ module top_single_cycle #(
         .op_w    (op_w     /* default 6 */),
         .func_w  (func_w   /* default 6 */),
         .aluctl_w(aluctl_w /* default 3 */)
-     ) control_unit (
+    ) control_unit_module (
         .opcode    (instr[31:26]),
         .funct     (instr[5:0]),
         .zero      (zero),
@@ -139,17 +158,17 @@ module top_single_cycle #(
     // write reg mux
     mux2 #(
         .WIDTH(5)
-    ) u_reg_dst_mux (
+    ) write_reg_mux (
         .d0 (instr[20:16]),
         .d1 (instr[15:11]),
-        .s  (alusrc),
+        .s  (regdst),
         .y  (writereg)
     );
 
     // scrB mux
     mux2 #(
         .WIDTH(DATA_WIDTH)
-        ) u_alu_src_mux (
+        ) alu_src_mux (
         .d0 (write_data),
         .d1 (signimm),
         .s  (alusrc),
@@ -157,12 +176,12 @@ module top_single_cycle #(
     );
 
     // alu
-    alu alu (
+    alu alu_module (
         .a         (SrcA),
         .b         (SrcB),
         .shamt     (instr[10:6]),
         .alucontrol(alucontrol),
-        .result    (result),
+        .result    (alu_result),
         .zero      (zero),
         .sign      (sign),
         .overflow  (overflow)
@@ -173,11 +192,11 @@ module top_single_cycle #(
         .a         (signimm),
         .shift_amt (5'd2),
         .shift_type(1'b0),
-        .y         (pc_branch)
+        .y         (signimm_shift2)
     );
 
     // adder pcbranch
-       adder u_pc_branch_adder (
+       adder branch_adder (
         .a (signimm_shift2),
         .b (pc_plus4),
         .y (pc_branch)
@@ -187,7 +206,7 @@ module top_single_cycle #(
     dmem #(
         .size     (DATA_WIDTH /* default 32 */),
         .mem_depth(mem_depth /* default 64 */)
-     ) dmem (
+    ) dmem_module (
         .clk(clk),
         .we (memwrite),
         .a  (alu_result),
@@ -198,12 +217,18 @@ module top_single_cycle #(
     // Writeback modules //
     mux2 #(
         .WIDTH(DATA_WIDTH /* default 8 */)
-     ) mux2 (
+     ) alu_mux2 (
         .d0(alu_result),
         .d1(read_data),
         .s (memtoreg),
         .y (result)
     );
+
+    // outputs
+    assign pc_out         = pcf;
+    assign alu_result_out = alu_result;
+    assign write_data_out = write_data;
+
 
 endmodule
 
