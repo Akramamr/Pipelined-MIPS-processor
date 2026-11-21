@@ -27,35 +27,35 @@ module moduleName #(
 );
 //=============== SIGNALS ===============//
     // initatial //
-    reg [DATA_WIDTH-1:0] pc_in;
-    reg [DATA_WIDTH-1:0] pc;
-    reg [DATA_WIDTH-1:0] instr;
-    reg [DATA_WIDTH-1:0] pc_plus4;
+    wire [DATA_WIDTH-1:0] pc_in;
+    wire [DATA_WIDTH-1:0] pc;
+    wire [DATA_WIDTH-1:0] instr;
+    wire [DATA_WIDTH-1:0] pc_plus4;
 
     // Control_Unit //
-    reg                regdst;
-    reg                alusrc;
-    reg                memtoreg;
-    reg                regwrite;
-    reg                memwrite;
-    reg                branch;
-    reg                pcsrc;
-    reg                jump;
-    reg [aluctl_w-1:0] alucontrol;
+    wire                regdst;
+    wire                alusrc;
+    wire                memtoreg;
+    wire                regwrite;
+    wire                memwrite;
+    wire                branch;
+    wire                pcsrc;
+    wire                jump;
+    wire [aluctl_w-1:0] alucontrol;
 
     // Data //
-    reg [DATA_WIDTH-1:0] SrcA;
-    reg [DATA_WIDTH-1:0] SrcB;
-    reg [DATA_WIDTH-1:0] write_data;
-    reg [4:0]            writereg;
-    reg [DATA_WIDTH-1:0] signimm;
-    reg [31:0]           shift_2;
-    reg [31:0]           pc_branch;
-    reg                  zero;
-    reg [31:0]           alu_result;
-    reg                  sign;
-    reg                  overflow;
-    reg [DATA_WIDTH-1:0] read_data;
+    wire [DATA_WIDTH-1:0] SrcA;
+    wire [DATA_WIDTH-1:0] SrcB;
+    wire [DATA_WIDTH-1:0] write_data;
+    wire [4:0]            writereg;
+    wire [DATA_WIDTH-1:0] signimm;
+    wire [31:0]           shift_2;
+    wire [31:0]           pc_branch;
+    wire                  zero;
+    wire [31:0]           alu_result;
+    wire                  sign;
+    wire                  overflow;
+    wire [DATA_WIDTH-1:0] read_data;
 
 //=============== MODULES ===============//
 
