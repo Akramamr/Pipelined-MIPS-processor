@@ -3,7 +3,7 @@
 * AUTHOR : Tony Anwar
 * Top Module for single cycle
 */
-module moduleName #(
+module top_single_cycle #(
 //=============== PARAMETERS ===============//
     parameter op_w       = 6, //opcode width
     parameter func_w     = 6 , // funct port width
