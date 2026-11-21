@@ -184,9 +184,26 @@ module moduleName #(
     );
 
     // Memory modules //
+    dmem #(
+        .size     (DATA_WIDTH /* default 32 */),
+        .mem_depth(mem_depth /* default 64 */)
+     ) dmem (
+        .clk(clk),
+        .we (memwrite),
+        .a  (alu_result),
+        .wd (write_data),
+        .rd (read_data)
+    );
 
     // Writeback modules //
-
+    mux2 #(
+        .WIDTH(DATA_WIDTH /* default 8 */)
+     ) mux2 (
+        .d0(alu_result),
+        .d1(read_data),
+        .s (memtoreg),
+        .y (result)
+    );
 
 endmodule
 
