@@ -28,7 +28,7 @@ module moduleName #(
 //=============== SIGNALS ===============//
     // initatial //
     wire [DATA_WIDTH-1:0] pc_in;
-    wire [DATA_WIDTH-1:0] pc;
+    wire [DATA_WIDTH-1:0] pcf;
     wire [DATA_WIDTH-1:0] instr;
     wire [DATA_WIDTH-1:0] pc_plus4;
 
@@ -58,6 +58,43 @@ module moduleName #(
     wire [DATA_WIDTH-1:0] read_data;
 
 //=============== MODULES ===============//
+    // Fetch modules
+    mux2 #(
+        .WIDTH(DATA_WIDTH)
+     ) pc_mux2 (
+        .d0(pc_plus4),
+        .d1(pc_branch),
+        .s (pcsrc),
+        .y (pc_in)
+    );
+
+    d_ff #(
+        .DATA_WIDTH(DATA_WIDTH)
+     ) pc_ff (
+        .clk(clk),
+        .rst(rst),
+        .d  (pc_in),
+        .q  (pcf)
+    );
+
+    adder pc4_adder (
+        .a(pcf),
+        .b({DATA_WIDTH{1'd4}}),
+        .y(pc_plus4)
+    );
+
+    imem imem (
+        .a (pcf[7:2]),
+        .rd(instr)
+    );
+
+    // Decode modules
+
+    // Execute modules
+
+    // Memory modules
+
+    // Writeback modules
 
 
 endmodule
